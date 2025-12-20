@@ -1,0 +1,9 @@
+init memory 1024
+set allocator first_fit
+malloc 64
+malloc 128
+free 1
+access 0x000
+access 0x040
+access 0x000
+stats
