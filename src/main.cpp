@@ -43,13 +43,20 @@ int main() {
             else if (pol == "worst_fit") alloc.set_policy(AllocPolicy::WORST_FIT);
         }
 
-        else if (cmd == "malloc") {
-            size_t sz;
-            ss >> sz;
-            int id = alloc.malloc_block(sz);
-            if (id == -1) std::cout << "Allocation failed\n";
-            else std::cout << "Allocated block id=" << id << "\n";
-        }
+else if (cmd == "malloc") {
+    size_t sz;
+    ss >> sz;
+
+    int id;
+    size_t addr = alloc.malloc_block(sz, id);
+
+    if (id == -1)
+        std::cout << "Allocation failed\n";
+    else
+        std::cout << "Allocated block id=" << id
+                  << " at address=0x"
+                  << std::hex << addr << std::dec << "\n";
+}
 
         else if (cmd == "free") {
             int id;

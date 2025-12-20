@@ -63,25 +63,27 @@ void Allocator::split_block(Block* blk, size_t size) {
     blk->size = size;
 }
 
-int Allocator::malloc_block(size_t size) {
+size_t Allocator::malloc_block(size_t size, int &out_id) {
     stats_data.alloc_requests++;
 
     Block* blk = find_block(size);
     if (!blk) {
         stats_data.alloc_failures++;
-        return -1;
+        out_id = -1;
+        return static_cast<size_t>(-1);
     }
 
     split_block(blk, size);
 
     blk->free = false;
     blk->id = next_id++;
+    out_id = blk->id;
 
     stats_data.used_memory += blk->size;
     stats_data.requested_memory += size;
     stats_data.internal_frag += (blk->size - size);
 
-    return blk->id;
+    return blk->start;
 }
 
 void Allocator::coalesce(Block* blk) {

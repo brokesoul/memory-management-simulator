@@ -19,7 +19,7 @@ public:
     void init(size_t size);
     void set_policy(AllocPolicy p);
 
-    int malloc_block(size_t size);
+size_t malloc_block(size_t size, int &out_id);
     bool free_block(int id);
 
     void dump() const;
