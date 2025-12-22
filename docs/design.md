@@ -1,35 +1,35 @@
-# Memory Management Simulator – Design
+# Memory Management Simulator — Design Document
 
 ## Assumptions
-- Byte-addressable memory
-- Single process
+- Memory unit: bytes
+- Single-process simulation
 - Fixed page size
-- FIFO cache & paging replacement
+- FIFO replacement for cache and paging
 
-## Memory Allocation
-- First Fit / Best Fit / Worst Fit
-- Explicit free list
-- Immediate coalescing
+## Physical Memory
+- Linked-list based block allocator
+- First Fit, Best Fit, Worst Fit strategies
+- Explicit block splitting and coalescing
 
-## Buddy Allocator
-- Power-of-two blocks
-- XOR buddy computation
-- Recursive split & merge
+## Buddy Allocation
+- Power-of-two memory sizes
+- XOR-based buddy computation
+- Recursive split and merge
 
 ## Cache Hierarchy
-- L1 + L2
-- Set-associative
+- Set-associative cache
 - FIFO replacement
+- Physical-address indexed
 
 ## Virtual Memory
 - Page table with valid bit
 - FIFO page replacement
-- Address translation before cache
+- Separate frame tracking
 
-## Address Flow
-Virtual → Page Table → Physical → Cache → Memory
+## Address Translation Flow
+Virtual Address → Page Table → Physical Address → Cache → Memory
 
 ## Limitations
 - No TLB
 - No dirty bits
-- No write-back cache
+- No multi-process support

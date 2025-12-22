@@ -1,32 +1,42 @@
 #ifndef VIRTUAL_MEMORY_H
 #define VIRTUAL_MEMORY_H
 
-#include <unordered_map>
 #include <cstddef>
+#include <vector>
+#include <queue>
 
-struct PageEntry {
+struct PageTableEntry {
     bool valid;
     size_t frame;
 };
 
 class VirtualMemory {
 public:
-    VirtualMemory(size_t page_size, size_t num_frames);
+    VirtualMemory(size_t virt_size,
+                  size_t phys_size,
+                  size_t page_size);
 
-    size_t access(size_t virtual_address);
+    bool access(size_t virtual_address, size_t &physical_address);
+
     void stats() const;
 
 private:
+    size_t virt_size;
+    size_t phys_size;
     size_t page_size;
+
+    size_t num_pages;
     size_t num_frames;
 
-    std::unordered_map<size_t, PageEntry> page_table;
-    std::unordered_map<size_t, size_t> frame_table; // frame -> page
-
-    size_t next_frame;
+    std::vector<PageTableEntry> page_table;
+    std::vector<bool> frame_used;
+    std::queue<size_t> fifo_pages;
 
     size_t page_hits;
     size_t page_faults;
+
+    size_t get_page(size_t vaddr) const;
+    size_t get_offset(size_t vaddr) const;
 };
 
 #endif

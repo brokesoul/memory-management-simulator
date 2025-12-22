@@ -1,0 +1,7 @@
+init_vm 4096 1024 256
+init_cache 128 16 2
+vm_access 0x000
+vm_access 0x010
+vm_access 0x000
+vm_stats
+cache_stats

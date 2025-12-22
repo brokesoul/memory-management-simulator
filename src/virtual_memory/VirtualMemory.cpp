@@ -1,45 +1,80 @@
 #include "VirtualMemory.h"
 #include <iostream>
 
-VirtualMemory::VirtualMemory(size_t psize, size_t frames)
-    : page_size(psize),
-      num_frames(frames),
-      next_frame(0),
+VirtualMemory::VirtualMemory(size_t vsize,
+                             size_t psize,
+                             size_t psize_page)
+    : virt_size(vsize),
+      phys_size(psize),
+      page_size(psize_page),
       page_hits(0),
-      page_faults(0) {}
+      page_faults(0)
+{
+    num_pages = virt_size / page_size;
+    num_frames = phys_size / page_size;
 
-size_t VirtualMemory::access(size_t vaddr) {
-    size_t page = vaddr / page_size;
-    size_t offset = vaddr % page_size;
+    page_table.resize(num_pages);
+    frame_used.resize(num_frames, false);
 
-    auto it = page_table.find(page);
-    if (it != page_table.end() && it->second.valid) {
+    for (auto &e : page_table) {
+        e.valid = false;
+        e.frame = 0;
+    }
+}
+
+size_t VirtualMemory::get_page(size_t vaddr) const {
+    return vaddr / page_size;
+}
+
+size_t VirtualMemory::get_offset(size_t vaddr) const {
+    return vaddr % page_size;
+}
+
+bool VirtualMemory::access(size_t vaddr, size_t &paddr) {
+    size_t page = get_page(vaddr);
+    size_t offset = get_offset(vaddr);
+
+    if (page >= num_pages)
+        return false;
+
+    if (page_table[page].valid) {
         page_hits++;
-        return it->second.frame * page_size + offset;
+        paddr = page_table[page].frame * page_size + offset;
+        return true;
     }
 
+    /* PAGE FAULT */
     page_faults++;
 
-    size_t frame;
-    if (next_frame < num_frames) {
-        frame = next_frame++;
-    } else {
-        // simple FIFO eviction
-        auto evict = frame_table.begin();
-        size_t evict_frame = evict->first;
-        size_t evict_page = evict->second;
-        page_table[evict_page].valid = false;
-        frame = evict_frame;
-        frame_table.erase(evict);
+    size_t frame = num_frames;
+    for (size_t i = 0; i < num_frames; i++) {
+        if (!frame_used[i]) {
+            frame = i;
+            break;
+        }
     }
 
-    page_table[page] = {true, frame};
-    frame_table[frame] = page;
+    /* FIFO REPLACEMENT */
+    if (frame == num_frames) {
+        size_t victim_page = fifo_pages.front();
+        fifo_pages.pop();
 
-    return frame * page_size + offset;
+        frame = page_table[victim_page].frame;
+        page_table[victim_page].valid = false;
+    }
+
+    page_table[page].valid = true;
+    page_table[page].frame = frame;
+    frame_used[frame] = true;
+
+    fifo_pages.push(page);
+
+    paddr = frame * page_size + offset;
+    return false;
 }
 
 void VirtualMemory::stats() const {
     std::cout << "Page hits: " << page_hits << "\n";
     std::cout << "Page faults: " << page_faults << "\n";
 }
+

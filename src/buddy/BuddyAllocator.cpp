@@ -1,98 +1,99 @@
 #include "BuddyAllocator.h"
 #include <iostream>
-#include <iomanip>
+#include <cmath>
 
-BuddyAllocator::BuddyAllocator() : total_size(0), base_addr(0) {}
+BuddyAllocator::BuddyAllocator()
+    : total_size(0), min_order(0), max_order(0) {}
 
-size_t BuddyAllocator::next_pow2(size_t x) const {
+size_t BuddyAllocator::next_power_of_two(size_t x) const {
     size_t p = 1;
     while (p < x) p <<= 1;
     return p;
 }
 
+size_t BuddyAllocator::order_of(size_t size) const {
+    size_t order = 0;
+    size_t s = 1;
+    while (s < size) {
+        s <<= 1;
+        order++;
+    }
+    return order;
+}
+
 void BuddyAllocator::init(size_t size) {
-    total_size = next_pow2(size);
-    base_addr = 0;
+    total_size = next_power_of_two(size);
     free_lists.clear();
     allocated.clear();
-    free_lists[total_size].insert(base_addr);
+
+    max_order = order_of(total_size);
+    min_order = 0;
+
+    free_lists[max_order].insert(0);
 }
 
-size_t BuddyAllocator::buddy_of(size_t addr, size_t size) const {
-    return addr ^ size;
-}
+int BuddyAllocator::malloc_block(size_t size) {
+    size_t req_size = next_power_of_two(size);
+    size_t order = order_of(req_size);
 
-void BuddyAllocator::split_block(size_t size) {
-    auto it = free_lists.lower_bound(size << 1);
-    if (it == free_lists.end()) return;
+    size_t cur = order;
+    while (cur <= max_order && free_lists[cur].empty())
+        cur++;
 
-    size_t big_size = it->first;
-    size_t addr = *it->second.begin();
-    it->second.erase(addr);
-    if (it->second.empty()) free_lists.erase(it);
+    if (cur > max_order)
+        return -1;
 
-    size_t half = big_size >> 1;
-    free_lists[half].insert(addr);
-    free_lists[half].insert(addr + half);
-}
+    size_t addr = *free_lists[cur].begin();
+    free_lists[cur].erase(addr);
 
-int BuddyAllocator::alloc(size_t size) {
-    size_t req = next_pow2(size);
-
-    if (free_lists.find(req) == free_lists.end()) {
-        split_block(req);
+    while (cur > order) {
+        cur--;
+        size_t buddy = addr + (1ULL << cur);
+        free_lists[cur].insert(buddy);
     }
 
-    auto it = free_lists.find(req);
-    if (it == free_lists.end() || it->second.empty()) return -1;
-
-    size_t addr = *it->second.begin();
-    it->second.erase(addr);
-    if (it->second.empty()) free_lists.erase(it);
-
-    allocated[addr] = req;
+    allocated[addr] = order;
     return static_cast<int>(addr);
 }
 
-bool BuddyAllocator::free_block(size_t addr) {
-    auto it = allocated.find(addr);
-    if (it == allocated.end()) return false;
+size_t BuddyAllocator::buddy_of(size_t addr, size_t order) const {
+    return addr ^ (1ULL << order);
+}
 
-    size_t size = it->second;
+bool BuddyAllocator::free_block(int addr) {
+    auto it = allocated.find(addr);
+    if (it == allocated.end())
+        return false;
+
+    size_t order = it->second;
     allocated.erase(it);
 
-    size_t curr_addr = addr;
-    size_t curr_size = size;
+    size_t cur_addr = addr;
 
-    while (true) {
-        size_t buddy = buddy_of(curr_addr, curr_size);
-        auto fit = free_lists.find(curr_size);
-        if (fit == free_lists.end() ||
-            fit->second.find(buddy) == fit->second.end()) {
+    while (order < max_order) {
+        size_t buddy = buddy_of(cur_addr, order);
+        auto& fl = free_lists[order];
+
+        if (fl.find(buddy) == fl.end())
             break;
-        }
 
-        fit->second.erase(buddy);
-        if (fit->second.empty()) free_lists.erase(fit);
-
-        curr_addr = std::min(curr_addr, buddy);
-        curr_size <<= 1;
+        fl.erase(buddy);
+        cur_addr = std::min(cur_addr, buddy);
+        order++;
     }
 
-    free_lists[curr_size].insert(curr_addr);
+    free_lists[order].insert(cur_addr);
     return true;
 }
 
 void BuddyAllocator::dump() const {
     std::cout << "Buddy Free Lists:\n";
-    for (auto& [sz, addrs] : free_lists) {
-        std::cout << "Size " << sz << ": ";
-        for (auto a : addrs)
-            std::cout << "0x" << std::hex << a << " ";
-        std::cout << std::dec << "\n";
+    for (auto& [order, blocks] : free_lists) {
+        if (blocks.empty()) continue;
+        std::cout << "Order " << order << " (size "
+                  << (1ULL << order) << "): ";
+        for (auto addr : blocks)
+            std::cout << addr << " ";
+        std::cout << "\n";
     }
-
-    std::cout << "Allocated Blocks:\n";
-    for (auto& [a, sz] : allocated)
-        std::cout << "[0x" << std::hex << a << "] size=" << std::dec << sz << "\n";
 }
