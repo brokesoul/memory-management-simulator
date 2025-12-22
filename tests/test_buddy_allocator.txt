@@ -1,0 +1,18 @@
+set allocator buddy
+init memory 1024
+
+malloc 100
+malloc 200
+malloc 300
+
+dump
+
+free 0
+free 128
+
+dump
+
+
+- Allocations are rounded to nearest power of two.
+- Free blocks merge recursively with their buddies.
+- Dump shows power-of-two aligned blocks.

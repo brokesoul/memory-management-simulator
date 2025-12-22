@@ -1,0 +1,15 @@
+init_vm 4096 1024 256
+init_cache 32 16 1   128 16 2
+
+vm_access 0x000
+vm_access 0x200
+vm_access 0x400
+vm_access 0x000
+
+vm_stats
+cache_stats
+
+- First vm_access causes PAGE FAULT and CACHE MISS.
+- Later vm_access to same address causes PAGE HIT.
+- L1 MISS but L2 HIT occurs after eviction from L1.
+- Confirms correct address translation followed by cache access.

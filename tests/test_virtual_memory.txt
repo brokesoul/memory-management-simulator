@@ -1,0 +1,12 @@
+init_vm 4096 1024 256
+
+vm_access 0x000
+vm_access 0x100
+vm_access 0x000
+vm_access 0x400
+
+vm_stats
+
+- First access to a page causes PAGE FAULT.
+- Re-access to same page causes PAGE HIT.
+- Page faults increase when new pages exceed physical frames.

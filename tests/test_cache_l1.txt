@@ -1,0 +1,12 @@
+init_cache 64 16 1
+
+access 0x000
+access 0x010
+access 0x000
+access 0x020
+
+cache_stats
+
+- First access is a MISS.
+- Repeated access to same block results in HIT.
+- FIFO eviction occurs when cache capacity is exceeded.

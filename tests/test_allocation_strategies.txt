@@ -1,0 +1,37 @@
+# Test 1: First Fit vs Best Fit vs Worst Fit
+
+init memory 1000
+
+malloc 100
+malloc 300
+malloc 50
+malloc 200
+
+free 2
+free 4
+
+# At this point, free blocks of different sizes exist
+
+set allocator first_fit
+malloc 180
+dump
+
+#- Allocation occurs in the first free block in address order.
+#- Block placement depends on address ordering, not size optimality.
+
+init memory 1000
+
+malloc 100
+malloc 300
+malloc 50
+malloc 200
+
+free 2
+free 4
+
+set allocator best_fit
+malloc 180
+dump
+
+#- Allocation uses the smallest free block that can fit 180 bytes.
+#- Chosen block must be smaller than the largest free block.

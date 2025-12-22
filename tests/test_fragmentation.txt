@@ -1,0 +1,15 @@
+init memory 512
+
+malloc 100
+malloc 50
+malloc 80
+
+free 2
+free 1
+
+dump
+stats
+
+- Adjacent free blocks must be merged (coalesced).
+- Dump should show a larger contiguous free block.
+- External fragmentation decreases after coalescing.
