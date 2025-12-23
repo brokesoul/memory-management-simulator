@@ -81,7 +81,7 @@ else if (cmd == "init_vm") {
     vm = new VirtualMemory(vsize, psize, pagesz);
     std::cout << "Virtual memory initialized\n";
 }
-else if (cmd == "vm_access") {
+    else if (cmd == "vm_access") {
     size_t vaddr;
     ss >> std::hex >> vaddr >> std::dec;
 
@@ -98,7 +98,6 @@ else if (cmd == "vm_access") {
     else
         std::cout << "PAGE FAULT\n";
 
-    /* ---------- CACHE PIPELINE ---------- */
     if (!L1 || !L2) {
         std::cout << "Cache not initialized\n";
     } else {
@@ -110,22 +109,20 @@ else if (cmd == "vm_access") {
                 std::cout << "L2 HIT\n";
             } else {
                 std::cout << "L2 MISS (Memory Access)\n";
+                }
             }
         }
+    
+        std::cout << "Physical address: 0x"
+                  << std::hex << paddr << std::dec << "\n";
     }
+        else if (cmd == "vm_stats") {
+            if (vm)
+                vm->stats();
+            else
+                std::cout << "Virtual memory not initialized\n";
+        }
 
-    std::cout << "Physical address: 0x"
-              << std::hex << paddr << std::dec << "\n";
-}
-else if (cmd == "vm_stats") {
-    if (vm)
-        vm->stats();
-    else
-        std::cout << "Virtual memory not initialized\n";
-}
-
-
-        /* ---------------- INIT ---------------- */
         else if (cmd == "init") {
             std::string mem;
             size_t size;
@@ -138,7 +135,6 @@ else if (cmd == "vm_stats") {
             }
         }
 
-        /* ---------------- SET ALLOCATOR ---------------- */
         else if (cmd == "set") {
             std::string a, p;
             ss >> a >> p;
@@ -157,7 +153,6 @@ else if (cmd == "vm_stats") {
             }
         }
 
-        /* ---------------- MALLOC ---------------- */
         else if (cmd == "malloc") {
             size_t size;
             ss >> size;
@@ -179,7 +174,6 @@ else if (cmd == "vm_stats") {
             }
         }
 
-        /* ---------------- FREE ---------------- */
         else if (cmd == "free") {
             int x;
             ss >> x;
@@ -197,7 +191,6 @@ else if (cmd == "vm_stats") {
             }
         }
 
-        /* ---------------- DUMP ---------------- */
         else if (cmd == "dump") {
             if (buddy_mode)
                 buddy.dump();
@@ -205,7 +198,6 @@ else if (cmd == "vm_stats") {
                 alloc.dump();
         }
 
-        /* ---------------- STATS ---------------- */
         else if (cmd == "stats") {
             if (!buddy_mode)
                 alloc.stats();
