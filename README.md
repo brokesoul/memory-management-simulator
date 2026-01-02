@@ -303,11 +303,6 @@ The `tests/` directory contains:
 * Expected behavior documented as comments
 * Optional script to run all tests automatically
 
-Example:
-
-```bash
-./memsim < tests/test_full_pipeline.txt
-```
 
 ---
 
