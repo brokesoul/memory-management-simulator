@@ -37,7 +37,7 @@ bool Cache::access(size_t address) {
     auto &set = sets[set_idx];
     auto &fifo = fifo_queues[set_idx];
 
-    /* HIT CHECK */
+    //HIT CHECK 
     for (auto &line : set) {
         if (line.valid && line.tag == tag) {
             hits++;
@@ -45,10 +45,9 @@ bool Cache::access(size_t address) {
         }
     }
 
-    /* MISS */
+
     misses++;
 
-    /* EMPTY LINE */
     for (size_t i = 0; i < associativity; i++) {
         if (!set[i].valid) {
             set[i].valid = true;
@@ -58,7 +57,7 @@ bool Cache::access(size_t address) {
         }
     }
 
-    /* FIFO REPLACEMENT */
+
     size_t victim = fifo.front();
     fifo.pop();
 
