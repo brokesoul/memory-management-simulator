@@ -131,6 +131,14 @@ void Allocator::dump() const {
 void Allocator::stats() const {
     std::cout << "Total memory: " << stats_data.total_memory << "\n";
     std::cout << "Used memory: " << stats_data.used_memory << "\n";
+
+    double util = (double)stats_data.used_memory / stats_data.total_memory;
+    double success = stats_data.alloc_requests == 0 ? 0.0 :
+    (double)(stats_data.alloc_requests - stats_data.alloc_failures) / stats_data.alloc_requests;
+
+    std::cout << "Memory utilization: " << util * 100 << "%\n";
+    std::cout << "Allocation success rate: " << success * 100 << "%\n";
+
     double ext_frag = 0.0;
     size_t free_total = stats_data.total_memory - stats_data.used_memory;
     size_t max_free = 0;
