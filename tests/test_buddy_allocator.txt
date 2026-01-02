@@ -13,6 +13,6 @@ free 128
 dump
 
 
-- Allocations are rounded to nearest power of two.
-- Free blocks merge recursively with their buddies.
-- Dump shows power-of-two aligned blocks.
+#- Allocations are rounded to nearest power of two.
+#- Free blocks merge recursively with their buddies.
+#- Dump shows power-of-two aligned blocks.
