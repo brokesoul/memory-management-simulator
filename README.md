@@ -327,4 +327,19 @@ This project demonstrates how an operating system:
 * Handles virtual memory and page faults
 * Uses multilevel CPU caches to speed up memory access
 
+## Demo & Screenshots
+
+### Demo Video
+Link: https://drive.google.com/your_video_link
+
+### Screenshots
+Screenshots demonstrating:
+- Allocation strategies
+- Cache hits/misses
+- Virtual memory page faults
+- Full pipeline execution
+
+(See `screenshots/` folder)
+
+
 
