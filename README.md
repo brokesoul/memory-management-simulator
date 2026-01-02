@@ -330,7 +330,7 @@ This project demonstrates how an operating system:
 ## Demo & Screenshots
 
 ### Demo Video
-Link: https://drive.google.com/your_video_link
+Link: [https://drive.google.com/video_link](https://drive.google.com/file/d/17Gw0cebYqsMpvdI_aOcQolAJ1ESngDiO/view?usp=sharing)
 
 ### Screenshots
 Screenshots demonstrating:
