@@ -147,4 +147,6 @@ void Allocator::stats() const {
     if (free_total > 0)
         ext_frag = 1.0 - (double)max_free / free_total;
     std::cout << "External fragmentation: " << ext_frag * 100 << "%\n";
+    std::cout << "Internal fragmentation: " << stats_data.internal_frag << " bytes\n";
+
 }
